@@ -1,0 +1,4 @@
+name: PotionProtect
+version: '${project.version}'
+main: fr.bl4.potionprotect.PotionProtect
+api-version: 1.19
