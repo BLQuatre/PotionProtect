@@ -2,7 +2,9 @@ package fr.bl4.potionprotect;
 
 import fr.bl4.potionprotect.data.Database;
 import fr.bl4.potionprotect.data.SQLite;
+import fr.bl4.potionprotect.listeners.PotionInteractListener;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -18,9 +20,14 @@ public final class PotionProtect extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-        blacklistedUUID = new ArrayList<>();
+
 
         db = new SQLite(this);
         db.load();
+
+        blacklistedUUID = db.getPlayers();
+
+        // Register listeners
+        Bukkit.getPluginManager().registerEvents(new PotionInteractListener(), this);
     }
 }
