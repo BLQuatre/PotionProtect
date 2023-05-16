@@ -1,6 +1,7 @@
 package fr.bl4.potionprotect.data;
 
 import fr.bl4.potionprotect.PotionProtect;
+import fr.bl4.potionprotect.config.Config;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -12,17 +13,21 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-
+/**
+ * Database is required to keep blacklisted players even after a restart.
+ */
 public abstract class Database {
 
     PotionProtect plugin;
     Connection connection;
 
-    // The name of the table we created back in SQLite class.
-    public String table = "table_name";
+    // Table's name on sql
+    private static String table;
 
     public Database(PotionProtect plugin){
         this.plugin = plugin;
+
+        table = Config.getConfig().getString("sql.table", "potion_protect_uuid");
     }
 
     public abstract Connection getSQLConnection();
@@ -50,7 +55,7 @@ public abstract class Database {
             }
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Couldn't execute MySQL statement: ", ex);
+            plugin.getLogger().log(Level.SEVERE, "[DATABASE] Couldn't execute MySQL statement: ", ex);
 
         } finally {
             try {
@@ -58,13 +63,17 @@ public abstract class Database {
                 if (conn != null) conn.close();
 
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, "Failed to close MySQL connection: ", ex);
+                plugin.getLogger().log(Level.SEVERE, "[DATABASE] Failed to close MySQL connection: ", ex);
             }
         }
         return players;
     }
 
-    // Exact same method here, Except as mentioned above i am looking for total!
+
+    /**
+     * Add a player to the database
+     * @param player player to add
+     */
     public void addPlayer(Player player) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -79,7 +88,7 @@ public abstract class Database {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Couldn't execute MySQL statement: ", ex);
+            plugin.getLogger().log(Level.SEVERE, "[DATABASE] Couldn't execute MySQL statement: ", ex);
 
         } finally {
             try {
@@ -87,11 +96,15 @@ public abstract class Database {
                 if (conn != null) conn.close();
 
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, "Failed to close MySQL connection: ", ex);
+                plugin.getLogger().log(Level.SEVERE, "[DATABASE] Failed to close MySQL connection: ", ex);
             }
         }
     }
 
+    /**
+     * Remove a player from the database
+     * @param player player to remove
+     */
     public void removePlayer(Player player) {
         Connection conn = null;
         PreparedStatement ps = null;
